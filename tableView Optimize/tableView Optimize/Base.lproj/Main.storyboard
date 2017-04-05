@@ -22,7 +22,7 @@
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="LFw-KJ-hfz" id="g6t-Vx-D85">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -38,6 +38,38 @@
             </objects>
             <point key="canvasLocation" x="1055.2" y="154.27286356821591"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="QxB-aR-nzn">
+            <objects>
+                <viewController id="j0h-Kp-DtL" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="DG9-DN-Hfa"/>
+                        <viewControllerLayoutGuide type="bottom" id="n8a-xo-BfU"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="5pZ-lh-5Rl">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iG6-Xx-fXU">
+                                <rect key="frame" x="170.5" y="318.5" width="34" height="30"/>
+                                <state key="normal" title="jump"/>
+                                <connections>
+                                    <segue destination="uIw-cg-u0i" kind="push" id="BTO-kE-0mB"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="iG6-Xx-fXU" firstAttribute="centerX" secondItem="5pZ-lh-5Rl" secondAttribute="centerX" id="Ibe-Zd-gOr"/>
+                            <constraint firstItem="iG6-Xx-fXU" firstAttribute="centerY" secondItem="5pZ-lh-5Rl" secondAttribute="centerY" id="Qvm-Wm-lgY"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="Hwx-tT-OeT"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="UYb-Bs-PoF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="798" y="233"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="XT4-id-e8V">
             <objects>
@@ -49,7 +81,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="uIw-cg-u0i" kind="relationship" relationship="rootViewController" id="4xT-bL-7ST"/>
+                        <segue destination="j0h-Kp-DtL" kind="relationship" relationship="rootViewController" id="uYI-8D-d0V"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Oe6-29-f99" userLabel="First Responder" sceneMemberID="firstResponder"/>

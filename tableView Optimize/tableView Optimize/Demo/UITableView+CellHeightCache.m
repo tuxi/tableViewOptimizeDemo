@@ -100,9 +100,9 @@
 - (instancetype)initWithTableView:(UITableView *)v {
     self = [super init];
     if (self) {
-
+        __weak typeof(v) weakTableView = v;
         [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillChangeStatusBarOrientationNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-            [v reloadData];
+            [weakTableView reloadData];
         }];
     }
     return self;
@@ -185,6 +185,10 @@
     return cache;
 }
 
+- (void)setCellHeightCache:(CellHeightCache *)cellHeightCache {
+    objc_setAssociatedObject(self, _cmd, cellHeightCache, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (BeanViewFrameAdaptive *)beanAdaptive {
     BeanViewFrameAdaptive *b = objc_getAssociatedObject(self, _cmd);
     if (!b) {
@@ -192,6 +196,10 @@
         objc_setAssociatedObject(self, _cmd, b, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return b;
+}
+
+- (void)setBeanAdaptive:(BeanViewFrameAdaptive *)beanAdaptive {
+    objc_setAssociatedObject(self, _cmd, beanAdaptive, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 
@@ -219,13 +227,13 @@
     CGFloat cellHeight = [self getCellHeightCacheWithCacheKey:bean.cellHeightKey];
     if (cellHeight) {
 //        NSLog(@"从缓存取出来的cell高度-----%f",cellHeight);
+        return cellHeight;
     }
     
-    if(!cellHeight){
-        cellHeight = bean.cellHeight;
-        [self cacheWithCellHeight:cellHeight cacheKey:bean.cellHeightKey];
-//        NSLog(@"通过计算获取的cell高度-----%f",cellHeight);
-    }
+    cellHeight = bean.cellHeight;
+    [self cacheWithCellHeight:cellHeight cacheKey:bean.cellHeightKey];
+    //        NSLog(@"通过计算获取的cell高度-----%f",cellHeight);
+    
     return cellHeight;
 }
 
@@ -272,6 +280,10 @@
         return nil;
     }
     return [self.beanAdaptive beanViewFrameForModle:model];
+}
+
+- (void)dealloc {
+
 }
 
 @end
@@ -398,6 +410,23 @@
     if (self.needLoadIndexPaths) {
         [self.needLoadIndexPaths removeAllObjects];
     }
+}
+
+- (void)releaseAll {
+    [self.visibleCells enumerateObjectsUsingBlock:^(__kindof MomentViewCell * _Nonnull cell, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([cell isKindOfClass:[MomentViewCell class]]) {
+            [cell releaseAll];
+        }
+    }];
+    [self removeFromSuperview];
+    [self removeNeedLoadData];
+    self.needLoadIndexPaths = nil;
+    [self setCellHeightCache:nil];
+    self.beanAdaptive = nil;
+}
+
+- (void)dealloc {
+    
 }
 
 @end

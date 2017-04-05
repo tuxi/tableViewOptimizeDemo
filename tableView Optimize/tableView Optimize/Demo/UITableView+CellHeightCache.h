@@ -40,8 +40,8 @@ typedef NS_ENUM(NSInteger, StatusBarOrientation) {
 
 @interface UITableView (CellHeightCache)
 
-@property (nonatomic, strong, readonly) CellHeightCache *cellHeightCache;
-@property (nonatomic, strong, readonly) BeanViewFrameAdaptive *beanAdaptive;
+@property (nonatomic, strong) CellHeightCache *cellHeightCache;
+@property (nonatomic, strong) BeanViewFrameAdaptive *beanAdaptive;
 
 - (CGFloat)getCellHeightCacheWithCacheKey:(NSString *)cacheKey;
 - (void)cacheWithCellHeight:(CGFloat)cellHeight cacheKey:(NSString *)cacheKey;
@@ -73,5 +73,5 @@ typedef NS_ENUM(NSInteger, StatusBarOrientation) {
 - (void)removeNeedLoadData;
 /// 刷新cell
 - (void)refreshData;
-
+- (void)releaseAll;
 @end

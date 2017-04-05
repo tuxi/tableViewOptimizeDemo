@@ -140,16 +140,11 @@
     [tableView refreshData];
 }
 
-//用户触摸时第一时间加载内容
-//- (void)tableView:(UITableView *)tableView hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-//    if ([tableView isKindOfClass:[EYTableView class]]) {
-//        if (tableView.scrollsToTop) {
-//            [tableView removeNeedLoadData];
-//            [tableView refreshData];
-//        }
-//    }
-//    
-//}
+- (void)dealloc {
+    [self.tableView releaseAll];
+}
+
+
 
 
 @end
