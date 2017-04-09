@@ -69,7 +69,7 @@
 - (void)setupUI {
     self.cellBackgroundView.opaque = YES;
     self.picContentView.opaque = YES;
-    [self clipsToBounds];
+    [self setClipsToBounds:YES];
     [self nightMode];
     self.layer.shouldRasterize      = YES;
     self.layer.rasterizationScale   = [UIScreen mainScreen].scale;
@@ -229,7 +229,7 @@
         case XYSelectionStyleBlue:
             [self drawSelectedBackgroundColor:self.bean.cellSelectBackgroundColor];
         case XYSelectionStyleGray:
-            [self drawSelectedBackgroundColor:[UIColor grayColor]];
+            [self drawSelectedBackgroundColor:[UIColor colorWithWhite:0.8 alpha:1.0]];
         default:
             break;
     }
@@ -1146,6 +1146,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         self.imageView.opaque = YES;
+        [self setClipsToBounds:YES];
     }
     return self;
 }
@@ -1153,6 +1154,7 @@
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
         self.imageView.opaque = YES;
+        [self setClipsToBounds:YES];
     }
     return self;
 }

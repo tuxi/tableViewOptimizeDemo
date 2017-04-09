@@ -65,7 +65,7 @@
     if (cell == nil) {
         cell = [[MomentViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
-    cell.xy_selectionStyle = XYSelectionStyleNone;
+    cell.xy_selectionStyle = XYSelectionStyleGray;
     
     return [tableView tableViewCell:cell loadDataFromDataSource:_dataList atIndexath:indexPath];
 }
