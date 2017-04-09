@@ -413,11 +413,11 @@
 }
 
 - (void)releaseAll {
-    [self.visibleCells enumerateObjectsUsingBlock:^(__kindof MomentViewCell * _Nonnull cell, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([cell isKindOfClass:[MomentViewCell class]]) {
-            [cell releaseAll];
-        }
-    }];
+//    [self.visibleCells enumerateObjectsUsingBlock:^(__kindof MomentViewCell * _Nonnull cell, NSUInteger idx, BOOL * _Nonnull stop) {
+//        if ([cell isKindOfClass:[MomentViewCell class]]) {
+//            [cell releaseAll];
+//        }
+//    }];
     [self removeFromSuperview];
     [self removeNeedLoadData];
     self.needLoadIndexPaths = nil;

@@ -159,9 +159,9 @@
     if (!self.isDrawed) {
         return;
     }
-//    if (self.drawQueue) {
-//        [self.drawQueue setSuspended:YES];
-//    }
+    if (self.drawQueue) {
+        [self.drawQueue cancelAllOperations];
+    }
     self.cellBackgroundView.frame = CGRectZero;
     self.picContentView.itemSize = CGSizeZero;
     self.picContentView.frame = CGRectZero;
