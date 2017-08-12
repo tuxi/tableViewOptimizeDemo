@@ -89,6 +89,10 @@
     return _nickName;
 }
 
+
+- (NSString *)adaptiveKey {
+    return [NSString stringWithFormat:@"%p", self];
+}
 @end
 
 @implementation AttachmentPhoto

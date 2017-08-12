@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "Moment.h"
 
-@interface Boobuz : NSObject
+@interface Boobuz : NSObject <BeanViewFrameAdaptiveModelProtocol>
 //Boobuz模型
 @property(nonatomic, assign)    NSInteger userId;
 @property(nonatomic, assign)    NSInteger poiId;

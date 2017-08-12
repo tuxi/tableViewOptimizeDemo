@@ -141,7 +141,7 @@
 }
 
 - (void)dealloc {
-    [self.tableView releaseAll];
+
 }
 
 

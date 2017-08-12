@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BeanViewFrameAdaptiveModelProtocol.h"
 
 typedef NS_ENUM(NSInteger, MomentType) {
     MomentTypePublic = 2,   // 公开,所有人可见
@@ -25,7 +26,7 @@ typedef NS_ENUM(NSInteger, MomentSendStatus) {
 };
 
 
-@interface Moment : NSObject
+@interface Moment : NSObject <BeanViewFrameAdaptiveModelProtocol>
 
 @property (nonatomic, strong) NSNumber  * momentId;
 @property (nonatomic, assign) MomentType momentType;

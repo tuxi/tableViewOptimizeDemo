@@ -140,6 +140,7 @@
 		183180411E7E8C4D008377A4 /* UIView+WebCacheOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+WebCacheOperation.m"; sourceTree = "<group>"; };
 		183180561E7E8FF9008377A4 /* boobuz.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = boobuz.json; sourceTree = "<group>"; };
 		183180571E7E8FF9008377A4 /* moment.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = moment.json; sourceTree = "<group>"; };
+		18FAEBCC1F3EC8800080A45C /* BeanViewFrameAdaptiveModelProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BeanViewFrameAdaptiveModelProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +207,7 @@
 				18317FE21E7E82FD008377A4 /* MomentViewCell.m */,
 				18317FE51E7E8330008377A4 /* UITableView+CellHeightCache.h */,
 				18317FE61E7E8330008377A4 /* UITableView+CellHeightCache.m */,
+				18FAEBCC1F3EC8800080A45C /* BeanViewFrameAdaptiveModelProtocol.h */,
 				18317FF11E7E87B8008377A4 /* NSString+DrawAdditions.h */,
 				18317FF21E7E87B8008377A4 /* NSString+DrawAdditions.m */,
 				18317FF41E7E8AAD008377A4 /* CornersImageView.h */,
@@ -588,6 +590,7 @@
 				18317FD51E7E822C008377A4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

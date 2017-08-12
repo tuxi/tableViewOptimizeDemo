@@ -56,6 +56,9 @@
     return b;
 }
 
-
+- (NSString *)adaptiveKey {
+    
+    return self.description;
+}
 
 @end
