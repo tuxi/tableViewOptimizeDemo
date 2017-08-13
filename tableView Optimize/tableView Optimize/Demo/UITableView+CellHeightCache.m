@@ -369,7 +369,6 @@
         mCell.selectionStyle = UITableViewCellSelectionStyleDefault;
         BeanViewFrame *bean = [self warpModelToBeanViewFrameByModel:model];
         mCell.bean = bean;
-        [mCell setTopLineHidde:(indexPath.row != 0)];
         
         if (self.needLoadIndexPaths.count>0 && [self.needLoadIndexPaths indexOfObject:indexPath] == NSNotFound) {
             [mCell cancelDraw];

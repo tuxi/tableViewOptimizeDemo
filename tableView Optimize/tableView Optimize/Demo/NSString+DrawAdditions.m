@@ -105,13 +105,14 @@
 
 
 + (CGFloat)getOneLineTextHeightWithFont:(UIFont *)font {
-    return [@"erlinyou.com" boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: font} context:nil].size.height;
+    return [@"erlinyou.com" sizeWithMaxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) font:font].height;
+    
 }
 
-+ (CGSize)sizeWithText:(NSString*)text maxSize:(CGSize)maxSize font:(UIFont*)font {
+- (CGSize)sizeWithMaxSize:(CGSize)maxSize font:(UIFont*)font {
     
     CGSize textSize = CGSizeZero;
-    if ([text respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)]) {
+    if ([self respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)]) {
         NSStringDrawingOptions opts = NSStringDrawingUsesLineFragmentOrigin |
         NSStringDrawingUsesFontLeading;
         
@@ -120,14 +121,17 @@
         
         NSDictionary *attributes = @{NSFontAttributeName : font, NSParagraphStyleAttributeName : style };
         
-        CGRect rect = [text boundingRectWithSize:maxSize
+        CGRect rect = [self boundingRectWithSize:maxSize
                                          options:opts
                                       attributes:attributes
                                          context:nil];
         textSize = rect.size;
     }
     else{
-        textSize = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:NSLineBreakByCharWrapping];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        textSize = [self sizeWithFont:font constrainedToSize:maxSize lineBreakMode:NSLineBreakByCharWrapping];
+#pragma clang diagnostic pop
     }
     
     return textSize;
@@ -153,7 +157,7 @@
     },6);
     NSDictionary* attributes = [NSDictionary dictionaryWithObjectsAndKeys:(__bridge id)font,(NSString*)kCTFontAttributeName,(__bridge id)style,(NSString*)kCTParagraphStyleAttributeName,nil];
     NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:self attributes:attributes];
-    //    [self clearEmoji:string start:0 font:font1];
+    //[self clearEmoji:string start:0 font:font1];
     CFAttributedStringRef attributedString = (__bridge CFAttributedStringRef)string;
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)attributedString);
     CGSize result = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, [string length]), NULL, size, NULL);
@@ -219,4 +223,100 @@
     [self drawInContext:context withPosition:p andFont:font andTextColor:color andHeight:height andWidth:CGFLOAT_MAX];
 }
 
+/// 将字典中的key按首字母升序排序，并转换为字符串
++ (NSString *)sortedDictToString:(NSDictionary*)dict {
+    
+    NSArray *keys = [dict allKeys];
+    NSArray *sortedArray = [keys sortedArrayUsingComparator:^NSComparisonResult(id obj1,id obj2) {
+        return[obj1 compare:obj2 options:NSNumericSearch];//正序
+    }];
+    
+    NSString *str = @"";
+    
+    for (NSString *categoryId in sortedArray) {
+        
+        id value = [dict objectForKey:categoryId];
+        
+        if([value isKindOfClass:[NSDictionary class]]) {
+            
+            value = [self sortedDictToString:value];
+        }
+        
+        if ([str length] !=0) {
+            
+            str = [str stringByAppendingString:@"&"];
+            
+        }
+        str = [str stringByAppendingFormat:@"%@@%@", categoryId, value];
+        
+    }
+    return str;
+}
+
+- (void)asyncFileSize:(void (^)(unsigned long long fileSize))fileSize {
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{ @autoreleasepool {
+        if (fileSize) {
+            fileSize([self fileSize]);
+        }}
+        
+    });
+}
+
+- (unsigned long long)fileSize {
+    unsigned long long totalSize = 0;
+    NSFileManager *mgr = [NSFileManager defaultManager];
+    // 是否为文件夹
+    BOOL isDirectory = NO;
+    
+    // 路径是否存在
+    BOOL exists = [mgr fileExistsAtPath:self isDirectory:&isDirectory];
+    if (!exists) {
+        return totalSize;
+    }
+    
+    if (isDirectory) {
+        // 获得文件夹的大小  == 获得文件夹中所有文件的总大小
+        NSDirectoryEnumerator *enumerator = [mgr enumeratorAtPath:self];
+        for (NSString *subpath in enumerator) {
+            @autoreleasepool {
+                NSString *fullSubpath = [self stringByAppendingPathComponent:subpath];
+                // 累加文件大小
+                totalSize += [mgr attributesOfItemAtPath:fullSubpath error:nil].fileSize;
+            }
+        }
+    } else {
+        totalSize = [mgr attributesOfItemAtPath:self error:nil].fileSize;
+    }
+    return totalSize;
+}
++ (NSString *)transformedFileSizeValue:(NSNumber *)value {
+    
+    double convertedValue = [value doubleValue];
+    int multiplyFactor = 0;
+    
+    NSArray *tokens = [NSArray arrayWithObjects:@"B",@"KB",@"MB",@"GB",@"TB",@"PB", @"EB", @"ZB", @"YB",nil];
+    
+    while (convertedValue > 1024) {
+        convertedValue /= 1024;
+        multiplyFactor++;
+    }
+    
+    return [NSString stringWithFormat:@"%4.2f %@",convertedValue, [tokens objectAtIndex:multiplyFactor]];
+}
+
+- (BOOL)updateFileModificationDateForFilePath {
+    NSDictionary *setDic =[NSDictionary dictionaryWithObject:[NSDate date] forKey:NSFileModificationDate];
+    return  [[NSFileManager defaultManager] setAttributes:setDic ofItemAtPath:self error:nil];
+}
+
+/// 调整contentText行间距 并返回富文本
+- (NSMutableAttributedString *)adjustmentLineSpacing:(CGFloat)lineSpacing {
+    
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self];
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    [paragraphStyle setLineSpacing:lineSpacing];
+    [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [self length])];
+    return attributedString;
+}
 @end
+

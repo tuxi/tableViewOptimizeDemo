@@ -41,13 +41,9 @@ typedef NS_ENUM(NSInteger, XYSelectionStyle) {
 @property (nonatomic, strong) BeanViewFrame *bean;
 @property (nonatomic, weak) id<MomentViewCellDelegate> delegate;
 @property (nonatomic, copy) void (^headIconViewClick)();
-@property (nonatomic, assign, getter=isTopLineHidde) BOOL topLineHidde;
 @property (nonatomic, assign) XYSelectionStyle xy_selectionStyle;
 @property (nonatomic, assign, readonly) BOOL isDrawed;
 
-//@property (nonatomic, assign, getter=isNeedRepeatLoad, readonly) BOOL needRepeatLoad;
-//- (void)markNeedRepeatLoad;
-//- (void)cancelRepeatLoad;
 
 - (void)startDraw;
 - (void)cancelDraw;
@@ -55,14 +51,6 @@ typedef NS_ENUM(NSInteger, XYSelectionStyle) {
 
 @end
 
-@interface MommentToolView : UIView
-
-@property (nonatomic, copy) void (^btnClickBlock)(MommentToolType type);
-@property (nonatomic, strong) BeanViewFrame *bean;
-@property (nonatomic, strong, readonly) NSMutableArray<UILabel *> *labelItems;
-@property (nonatomic, strong, readonly) NSMutableArray<UIButton *> *btnItems;
-
-@end
 
 @interface PicContentView : UICollectionView
 

@@ -22,7 +22,6 @@
 
 
 @interface NSString (DrawAdditions)
-
 /// 是否包含换行符
 - (BOOL)isContainsLineBreak;
 
@@ -42,7 +41,7 @@
 + (CGFloat)getOneLineTextHeightWithFont:(UIFont *)font;
 
 /// 计算文本的size
-+ (CGSize)sizeWithText:(NSString*)text maxSize:(CGSize)maxSize font:(UIFont*)font;
+- (CGSize)sizeWithMaxSize:(CGSize)maxSize font:(UIFont*)font;
 
 /// 计算通过CoreText绘制的文本的尺寸
 - (CGSize)sizeWithConstrainedToWidth:(float)width fromFont:(UIFont *)font1
@@ -50,6 +49,9 @@
 /// 计算通过CoreText绘制的文本的尺寸
 - (CGSize)sizeWithConstrainedToSize:(CGSize)size fromFont:(UIFont *)font1
                           lineSpace:(float)lineSpace;
+/// 将字典中的key按首字母升序排序，并转换为字符串
++ (NSString *)sortedDictToString:(NSDictionary*)dict;
+
 /// 将文本渲染到图形上下文中
 - (void)drawInContext:(CGContextRef)context
          withPosition:(CGPoint)p andFont:(UIFont *)font
@@ -61,5 +63,13 @@
          withPosition:(CGPoint)p andFont:(UIFont *)font
          andTextColor:(UIColor *)color
             andHeight:(float)height;
+
+- (unsigned long long)fileSize;
+- (void)asyncFileSize:(void (^)(unsigned long long fileSize))fileSize;
++ (NSString *)transformedFileSizeValue:(NSNumber *)value;
+/// 调整contentText行间距 并返回富文本
+- (NSMutableAttributedString *)adjustmentLineSpacing:(CGFloat)lineSpacing;
+/// 更新文件修改日期
+- (BOOL)updateFileModificationDateForFilePath;
 
 @end

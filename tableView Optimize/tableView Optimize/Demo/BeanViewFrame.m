@@ -246,7 +246,8 @@ const CGFloat SIZE_USERTYPEVIEW_WH_MOMENT = 16.0;
     
     if (self.nickNameText && self.nickNameText.length) {
         CGSize maxSize = CGSizeMake(conW, CGFLOAT_MAX);
-        CGSize nickNameSize = [NSString sizeWithText:self.nickNameText maxSize:maxSize font:kFontWithSize(kSIZE_FONT_NICKNAME)];
+       CGSize nickNameSize = [self.nickNameText sizeWithMaxSize:maxSize font:kFontWithSize(kSIZE_FONT_NICKNAME)];
+        
         self.nickNameFrame = CGRectMake(nickNameX, self.nickNameY, nickNameSize.width, nickNameSize.height);
         cellH += nickNameSize.height + SIZE_MARGIN_SMALL_MOMENTVIEW;
     } else {
@@ -256,21 +257,21 @@ const CGFloat SIZE_USERTYPEVIEW_WH_MOMENT = 16.0;
     
     if (self.userTypeText && self.userTypeText.length) {
         CGSize maxSize = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
-        CGSize userTypeLabelSize = [NSString sizeWithText:self.userTypeText maxSize:maxSize font:kFontWithSize(kSIZE_FONT_USERTYPE)];
+        CGSize userTypeLabelSize = [self.userTypeText sizeWithMaxSize:maxSize font:kFontWithSize(kSIZE_FONT_USERTYPE)];
         self.userTypeLabelFrame = CGRectMake(CGRectGetMaxX(self.nickNameFrame)+SIZE_MARGIN_SMALL_MOMENTVIEW, self.nickNameY, userTypeLabelSize.width, userTypeLabelSize.height);
         self.userTypeViewFrame = CGRectMake(CGRectGetMaxX(self.userTypeLabelFrame)+SIZE_MARGIN_SMALL_MOMENTVIEW, self.nickNameY, SIZE_USERTYPEVIEW_WH_MOMENT, SIZE_USERTYPEVIEW_WH_MOMENT);
     }
     
     self.rankFrame = CGRectMake(nickNameX, cellH, SIZE_RANK_W_MOMENTVIEW, SIZE_RANK_H_MOMENTVIEW);
     if (self.dateText && self.dateText.length) {
-        CGSize dateSize = [NSString sizeWithText:self.dateText maxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) font:kFontWithSize(kSIZE_FONT_DEFAULT)];
+        CGSize dateSize = [self.dateText sizeWithMaxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) font:kFontWithSize(kSIZE_FONT_DEFAULT)];
         self.dateFrame = CGRectMake(SIZE_SCREEN_W-SIZE_MARGIN_MOMENTVIEW-dateSize.width, cellH, dateSize.width, dateSize.height);
     } else {
         self.dateFrame = CGRectZero;
     }
     
     if (self.commentNumText && self.commentNumText.length) {
-        CGSize commentSize = [NSString sizeWithText:self.commentNumText maxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) font:kFontWithSize(kSIZE_FONT_DEFAULT)];
+        CGSize commentSize = [self.commentNumText sizeWithMaxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) font:kFontWithSize(kSIZE_FONT_DEFAULT)];
         self.commentFrame = CGRectMake(CGRectGetMaxX(self.rankFrame)+SIZE_MARGIN_SMALL_MOMENTVIEW, cellH, commentSize.width, commentSize.height);
     } else {
         self.commentFrame = CGRectZero;
@@ -289,7 +290,7 @@ const CGFloat SIZE_USERTYPEVIEW_WH_MOMENT = 16.0;
             contentText = [[contentText componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]] componentsJoinedByString:@""];
         }
         CGSize maxSize = CGSizeMake(conW, [NSString getOneLineTextHeightWithFont:kFontWithSize(kSIZE_FONT_CONTENT)]*2);
-        CGSize contentSize = [NSString sizeWithText:contentText maxSize:maxSize font:kFontWithSize(kSIZE_FONT_CONTENT)];
+        CGSize contentSize = [contentText sizeWithMaxSize:maxSize font:kFontWithSize(kSIZE_FONT_CONTENT)];
         // 这一步是为了防止文本中有换行符出现高度不正确的问题
         CGFloat h = [NSString getOneLineTextHeightWithFont:kFontWithSize(kSIZE_FONT_CONTENT)];
         if ([self.contentText isContainsLineBreak]) {
