@@ -51,6 +51,7 @@
 		183180511E7E8C4D008377A4 /* UIView+WebCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 183180411E7E8C4D008377A4 /* UIView+WebCacheOperation.m */; };
 		183180581E7E8FF9008377A4 /* boobuz.json in Resources */ = {isa = PBXBuildFile; fileRef = 183180561E7E8FF9008377A4 /* boobuz.json */; };
 		183180591E7E8FF9008377A4 /* moment.json in Resources */ = {isa = PBXBuildFile; fileRef = 183180571E7E8FF9008377A4 /* moment.json */; };
+		1852B4831FB4A69200FB9066 /* OSRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1852B4821FB4A69200FB9066 /* OSRunLoop.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -140,6 +141,8 @@
 		183180411E7E8C4D008377A4 /* UIView+WebCacheOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+WebCacheOperation.m"; sourceTree = "<group>"; };
 		183180561E7E8FF9008377A4 /* boobuz.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = boobuz.json; sourceTree = "<group>"; };
 		183180571E7E8FF9008377A4 /* moment.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = moment.json; sourceTree = "<group>"; };
+		1852B4811FB4A69200FB9066 /* OSRunLoop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRunLoop.h; sourceTree = "<group>"; };
+		1852B4821FB4A69200FB9066 /* OSRunLoop.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSRunLoop.m; sourceTree = "<group>"; };
 		18FAEBCC1F3EC8800080A45C /* BeanViewFrameAdaptiveModelProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BeanViewFrameAdaptiveModelProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -173,6 +176,7 @@
 		18317FBE1E7E822C008377A4 /* tableView Optimize */ = {
 			isa = PBXGroup;
 			children = (
+				1852B4801FB4A68500FB9066 /* OSRunLoop */,
 				18317FF71E7E8AF7008377A4 /* Lib */,
 				18317FDE1E7E82FD008377A4 /* Demo */,
 				18317FC21E7E822C008377A4 /* AppDelegate.h */,
@@ -319,6 +323,15 @@
 			path = SDWebImage;
 			sourceTree = "<group>";
 		};
+		1852B4801FB4A68500FB9066 /* OSRunLoop */ = {
+			isa = PBXGroup;
+			children = (
+				1852B4811FB4A69200FB9066 /* OSRunLoop.h */,
+				1852B4821FB4A69200FB9066 /* OSRunLoop.m */,
+			);
+			path = OSRunLoop;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -406,6 +419,7 @@
 				1831804E1E7E8C4D008377A4 /* UIImage+MultiFormat.m in Sources */,
 				1831801B1E7E8AFF008377A4 /* MASViewConstraint.m in Sources */,
 				183180471E7E8C4D008377A4 /* SDWebImageDecoder.m in Sources */,
+				1852B4831FB4A69200FB9066 /* OSRunLoop.m in Sources */,
 				18317FE31E7E82FD008377A4 /* BeanViewFrame.m in Sources */,
 				183180431E7E8C4D008377A4 /* README.md in Sources */,
 				1831801E1E7E8AFF008377A4 /* View+MASAdditions.m in Sources */,

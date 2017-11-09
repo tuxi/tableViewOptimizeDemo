@@ -8,6 +8,7 @@
 #import "UITableView+CellHeightCache.h"
 #import <objc/runtime.h>
 #import "MomentViewCell.h"
+#import "OSRunLoop.h"
 
 @interface BeanViewFrameAdaptive ()
 
@@ -377,8 +378,10 @@
         if (self.scrollToToping) {
             return mCell;
         }
+        OSRunLoop.main.limit(50).add(^{
+            [mCell startDraw];
+        });
         
-        [mCell startDraw];
     }
     return cell;
 }
