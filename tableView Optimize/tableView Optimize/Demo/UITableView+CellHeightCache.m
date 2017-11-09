@@ -378,7 +378,7 @@
         if (self.scrollToToping) {
             return mCell;
         }
-        OSRunLoop.main.limit(50).add(^{
+        OSRunLoop.main.limit(10).add(^{
             [mCell startDraw];
         });
         

@@ -32,7 +32,6 @@ static NSInteger const kRunLoopTaskSkip = 100;
 
 /// 存放OSRunLoop对象的数组
 @property (nonatomic, strong) NSMutableDictionary *runLoopDictionary;
-@property (nonatomic, strong, class) OSRunLoop *main;
 /// 执行任务的队列
 @property (nonatomic, strong) NSMutableArray<dispatch_block_t> *tasks;
 /// 缓存任务的队列
@@ -41,12 +40,11 @@ static NSInteger const kRunLoopTaskSkip = 100;
 @property (nonatomic, copy) NSString *name;
 /// 需要销毁的任务
 @property (nonatomic, copy) dispatch_block_t destroyTask;
+@property (nonatomic, strong) OSRunLoop *main;
 
 @end
 
 @implementation OSRunLoop
-
-@dynamic main;
 
 + (instancetype)sharedInstance {
     static OSRunLoop *_runLoop;
@@ -69,13 +67,13 @@ static NSInteger const kRunLoopTaskSkip = 100;
 }
 
 + (OSRunLoop *)main {
-    static OSRunLoop *_runLoop;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _runLoop = [[self alloc] initWithName:@"com.ossey.runloop.main"];
-        
-    });
-    return _runLoop;
+    OSRunLoop *runloop = OSRunLoop.sharedInstance.main;
+    if (!runloop) {
+        runloop = [[OSRunLoop alloc] initWithName:@"com.sina.runloop.main"];
+        [runloop addObserverForRunLoop:CFRunLoopGetMain()];
+        OSRunLoop.sharedInstance.main = runloop;
+    }
+    return runloop;
 }
 
 #pragma mark *** RunLoop ***
@@ -158,14 +156,13 @@ static NSInteger const kRunLoopTaskSkip = 100;
             [self.tasks addObject:task];
             
             // 当任务数量tasks大于limitCount时，并且开启缓存时，就将其添加到缓存中
-            while (self.tasks.count > self.caches.count) {
+            while (self.tasks.count > self.limitCount) {
                 if (self.isAllowCache) {
                     [self.caches addObject:task];
                 }
                 [self.tasks removeObjectAtIndex:0];
             }
         }
-        
     });
 }
 
@@ -216,5 +213,7 @@ static NSInteger const kRunLoopTaskSkip = 100;
     }
     return _runLoopDictionary;
 }
+
+
 
 @end

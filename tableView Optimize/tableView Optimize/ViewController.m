@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "MomentViewCell.h"
 #import "UITableView+CellHeightCache.h"
+#import "OSRunLoop.h"
 
 @interface ViewController ()
 
@@ -103,7 +104,10 @@
 //            [tableView reloadRowsAtIndexPaths:indexpaths withRowAnimation:UITableViewRowAnimationNone];
             for (NSIndexPath *indexPath in indexpaths) {
                 MomentViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-                [cell startDraw];
+               
+                OSRunLoop.main.limit(20).add(^{
+                     [cell startDraw];
+                });
             }
             
         }

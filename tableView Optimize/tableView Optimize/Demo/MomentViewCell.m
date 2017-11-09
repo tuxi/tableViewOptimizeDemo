@@ -234,7 +234,7 @@
 }
 
 - (void)highlightCell:(BOOL)highlight {
-    
+    return;
     [self cancelDraw];
     
     switch (self.xy_selectionStyle) {
