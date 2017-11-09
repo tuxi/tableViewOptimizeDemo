@@ -3,7 +3,7 @@
 //  tableView Optimize
 //
 //  Created by Swae on 2017/11/9.
-//  Copyright © 2017年 com.test.demo. All rights reserved.
+//  Copyright © 2017年 Ossey All rights reserved.
 //
 
 #import "OSRunLoop.h"
