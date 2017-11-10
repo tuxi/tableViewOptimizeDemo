@@ -8,14 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+/// 使用OSRunLoop.current().add(^{})添加任务可以将一个大任务拆分成很多个小任务，在 Runloop 当前循环空闲时(kRunLoopBeforeWaiting)，依次执行各个add()的任务
+
 @interface OSRunLoopOperation: NSObject
 
 /// 缓存任务
 - (OSRunLoopOperation *(^)(BOOL allowCache))cache;
 
 @end
-
-/// 使用OSRunLoop.current().add(^{})添加任务可以将一个大任务拆分成很多个小任务，在 Runloop 当前循环空闲时(kRunLoopBeforeWaiting)，依次执行各个add()的任务
 
 @interface OSRunLoop : NSObject
 
@@ -32,7 +32,8 @@
 /// 使用 max() 限制 最多执行Task 个数，默认没有限制
 /// 如果开启缓存机制，超出限制会丢弃最先入列的 task,
 - (OSRunLoop *(^)(NSInteger maxCount))max;
+/// 取消全部任务和缓存中的任务，正在执行的任务无法取消
+- (OSRunLoop *(^)(void))cancelAll;
 
 
 @end
-

@@ -9,14 +9,14 @@
 #import "OSRunLoop.h"
 
 #define OSRunLoopChainImplement(params, ...) \
-    __weak typeof(&*self) weak_self = self; \
-    return ^id(params) { \
-        __strong typeof(&*weak_self) self = weak_self; \
-        dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER); \
-        __VA_ARGS__ \
-        dispatch_semaphore_signal(_lock); \
-        return self; \
-    };
+__weak typeof(&*self) weak_self = self; \
+return ^id(params) { \
+__strong typeof(&*weak_self) self = weak_self; \
+dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER); \
+__VA_ARGS__ \
+dispatch_semaphore_signal(_lock); \
+return self; \
+};
 
 /// 最大任务默认值，默认无限制
 static NSInteger const kRunLoopTaskDefaultMaxCount = NSIntegerMax;
@@ -169,6 +169,13 @@ static NSString * const kRunLoopMainIdentifier = @"com.ossey.runloop.main";
     });
 }
 
+- (OSRunLoop *(^)(void))cancelAll {
+    OSRunLoopChainImplement(void, {
+        [self.taskQueue removeAllObjects];
+        [self.cacheQueue removeAllObjects];
+    });
+}
+
 + (OSRunLoop *(^)(NSString *))current {
     return ^OSRunLoop *(NSString *identifier) {
         
@@ -250,3 +257,4 @@ static NSString * const kRunLoopMainIdentifier = @"com.ossey.runloop.main";
     };
 }
 @end
+
