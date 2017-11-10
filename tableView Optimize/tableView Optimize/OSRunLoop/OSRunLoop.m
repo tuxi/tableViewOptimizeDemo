@@ -153,6 +153,7 @@ static NSString * const kRunLoopMainIdentifier = @"com.ossey.runloop.main";
             operation.task = task;
             operation.currentRunLoop = self;
             [self.taskQueue addObject:operation];
+            NSParameterAssert(operation.currentRunLoop);
         }
         dispatch_semaphore_signal(_lock);
         return operation;
@@ -249,4 +250,3 @@ static NSString * const kRunLoopMainIdentifier = @"com.ossey.runloop.main";
     };
 }
 @end
-
