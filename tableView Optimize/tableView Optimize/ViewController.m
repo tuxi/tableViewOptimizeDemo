@@ -124,7 +124,7 @@
     
     [tableView tableViewWillEndDraggingWithVelocity:velocity targetContentOffset:targetContentOffset dataSource:_dataList];
     
-   }
+}
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView{
     UITableView *tableView = (UITableView *)scrollView;
@@ -139,6 +139,20 @@
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView{
+    UITableView *tableView = (UITableView *)scrollView;
+    tableView.scrollToToping = NO;
+    [tableView refreshData];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        UITableView *tableView = (UITableView *)scrollView;
+        tableView.scrollToToping = NO;
+        [tableView refreshData];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     UITableView *tableView = (UITableView *)scrollView;
     tableView.scrollToToping = NO;
     [tableView refreshData];

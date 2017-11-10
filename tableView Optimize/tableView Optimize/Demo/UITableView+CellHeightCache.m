@@ -378,7 +378,7 @@
         if (self.scrollToToping) {
             return mCell;
         }
-        OSRunLoop.main.max(10).add(^{
+        OSRunLoop.main.max(30).add(^{
             [mCell startDraw];
         });
         
@@ -395,12 +395,13 @@
         return;
     }
     if (self.visibleCells && self.visibleCells.count>0) {
+        OSRunLoop.main.cancelAll();
         for (id temp in [self.visibleCells copy]) {
             MomentViewCell *cell = (MomentViewCell *)temp;
             if ([cell isKindOfClass:[MomentViewCell class]]) {
-                OSRunLoop.main.cache(YES).add(^{
+                OSRunLoop.main.add(^{
                     [cell startDraw];
-                });
+                }).cache(YES);
             }
             
         }
