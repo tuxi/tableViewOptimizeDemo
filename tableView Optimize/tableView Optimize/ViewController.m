@@ -105,7 +105,7 @@
             for (NSIndexPath *indexPath in indexpaths) {
                 MomentViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
                
-                OSRunLoop.main.limit(20).add(^{
+                OSRunLoop.main.max(20).add(^{
                      [cell startDraw];
                 });
             }

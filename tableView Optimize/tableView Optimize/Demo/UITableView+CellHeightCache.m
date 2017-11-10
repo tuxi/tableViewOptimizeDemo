@@ -378,7 +378,7 @@
         if (self.scrollToToping) {
             return mCell;
         }
-        OSRunLoop.main.limit(10).add(^{
+        OSRunLoop.main.max(10).add(^{
             [mCell startDraw];
         });
         
@@ -398,8 +398,11 @@
         for (id temp in [self.visibleCells copy]) {
             MomentViewCell *cell = (MomentViewCell *)temp;
             if ([cell isKindOfClass:[MomentViewCell class]]) {
-                [cell startDraw];
+                OSRunLoop.main.cache(YES).add(^{
+                    [cell startDraw];
+                });
             }
+            
         }
     }
 }

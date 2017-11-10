@@ -18,33 +18,42 @@
         return self; \
     };
 
-static NSInteger const kRunLoopTasksLimit = INT_MAX;
-static NSInteger const kRunLoopTaskSkip = 100;
+/// 最大任务默认值，默认无限制
+static NSInteger const kRunLoopTaskDefaultMaxCount = NSIntegerMax;
+/// 主线程OSRunLoop的标识符
+static NSString * const kRunLoopMainIdentifier = @"com.ossey.runloop.main";
 
+@interface OSRunLoopOperation ()
+
+/// 执行的任务
+@property (nonatomic, strong) dispatch_block_t task;
+/// 当前任务是否是缓存任务
+@property (nonatomic, assign, getter=isAllowCache) BOOL allowCache;
+/// 当前任务所在的OSRunLoop
+@property (nonatomic, weak) OSRunLoop *currentRunLoop;
+
+@end
 
 @interface OSRunLoop ()
 
 @property (nonatomic, strong) dispatch_semaphore_t lock;
-@property (nonatomic, assign) NSInteger limitCount;
-/// 需要跳过的数量
-@property (nonatomic, assign) NSInteger skipCount;
-@property (nonatomic, assign, getter=isAllowCache) BOOL allowCache;
-
+@property (nonatomic, assign) NSInteger maxCount;
 /// 存放OSRunLoop对象的数组
-@property (nonatomic, strong) NSMutableDictionary *runLoopDictionary;
+@property (nonatomic, strong, class) NSMutableDictionary<NSString *, OSRunLoop *> *runLoopDictionary;
 /// 执行任务的队列
-@property (nonatomic, strong) NSMutableArray<dispatch_block_t> *tasks;
+@property (nonatomic, strong) NSMutableArray<OSRunLoopOperation *> *taskQueue;
 /// 缓存任务的队列
-@property (nonatomic, strong) NSMutableArray<dispatch_block_t> *caches;
-/// OSRunLoop对象的名称
-@property (nonatomic, copy) NSString *name;
+@property (nonatomic, strong) NSMutableArray<OSRunLoopOperation *> *cacheQueue;
+/// OSRunLoop对象的标识符
+@property (nonatomic, copy) NSString *identifier;
 /// 需要销毁的任务
-@property (nonatomic, copy) dispatch_block_t destroyTask;
-@property (nonatomic, strong) OSRunLoop *main;
+@property (nonatomic, strong) OSRunLoopOperation *destroyTask;
 
 @end
 
 @implementation OSRunLoop
+
+@dynamic runLoopDictionary;
 
 + (instancetype)sharedInstance {
     static OSRunLoop *_runLoop;
@@ -55,59 +64,48 @@ static NSInteger const kRunLoopTaskSkip = 100;
     return _runLoop;
 }
 
-- (instancetype)initWithName:(NSString *)name
+- (instancetype)initWithIdentifer:(NSString *)identifier
 {
     self = [super init];
     if (self) {
-        self.name = name;
+        self.identifier = identifier;
         _lock = dispatch_semaphore_create(1);
-        _limitCount = kRunLoopTasksLimit;
+        _maxCount = kRunLoopTaskDefaultMaxCount;
     }
     return self;
 }
 
 + (OSRunLoop *)main {
-    OSRunLoop *runloop = OSRunLoop.sharedInstance.main;
-    if (!runloop) {
-        runloop = [[OSRunLoop alloc] initWithName:@"com.sina.runloop.main"];
-        [runloop addObserverForRunLoop:CFRunLoopGetMain()];
-        OSRunLoop.sharedInstance.main = runloop;
-    }
-    return runloop;
+    return self.current(kRunLoopMainIdentifier);
 }
 
 #pragma mark *** RunLoop ***
 
 - (void)addObserverForRunLoop:(CFRunLoopRef)runLoop {
     __weak typeof(&*self) weakSelf = self;
-   CFRunLoopObserverRef observer = CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopBeforeWaiting, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
-       __strong typeof(&*weakSelf) self = weakSelf;
-       
-       if (!self.tasks.count) {
-           return;
-       }
-       
-       // 存在跳过时，就return
-       if (self.skipCount > 0) {
-           self.skipCount--;
-           return;
-       }
-       
-       // 执行任务
-      dispatch_block_t task = self.tasks.firstObject;
-       task();
-       [self.tasks removeObjectAtIndex:0];
-       
-       // 缓存中存在时，就取出缓存中的放在tasks中，等待下次执行
-       if (self.isAllowCache && self.caches.count) {
-           dispatch_block_t block = self.caches.firstObject;
-           [self.caches removeObject:block];
-           [self.tasks addObject:task];
-       }
-       
-       // 销毁观察者
-       [self destoryObserver:observer];
-       
+    CFRunLoopObserverRef observer = CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopBeforeWaiting, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
+        __strong typeof(&*weakSelf) self = weakSelf;
+        
+        if (!self.taskQueue.count) {
+            return;
+        }
+        
+        // 执行任务
+        OSRunLoopOperation *operation = self.taskQueue.firstObject;
+        operation.task();
+        [self.taskQueue removeObjectAtIndex:0];
+        
+        // 缓存中存在时，就取出缓存中的放在tasks中，等待下次执行
+        if (self.cacheQueue.count) {
+            // 将缓存中的第一个任务添加到tasks中
+            OSRunLoopOperation *operation = [self.cacheQueue objectAtIndex:0];
+            [self.cacheQueue removeObject:operation];
+            [self.taskQueue addObject:operation];
+        }
+        
+        // 销毁观察者
+        [self destoryObserver:observer];
+        
     });
     CFRunLoopAddObserver(runLoop, observer, kCFRunLoopCommonModes);
     CFRelease(observer);
@@ -116,98 +114,115 @@ static NSInteger const kRunLoopTaskSkip = 100;
 
 /// 销毁观察者
 - (void)destoryObserver:(CFRunLoopObserverRef)observer {
-    if (!self.tasks.count) {
-        if ([[OSRunLoop sharedInstance].runLoopDictionary objectForKey:self.name]) {
+    if (!self.taskQueue.count) {
+        if ([OSRunLoop.runLoopDictionary objectForKey:self.identifier]) {
             // 当前是当前OSRunLoop
             __weak typeof(&*self) weakSelf = self;
-            self.destroyTask = ^{
+            self.destroyTask.task = ^{
                 __strong typeof(&*weakSelf) self = weakSelf;
                 CFRunLoopRemoveObserver(CFRunLoopGetCurrent(), observer, kCFRunLoopCommonModes);
-                [[OSRunLoop sharedInstance].runLoopDictionary removeObjectForKey:self.name];
+                [OSRunLoop.runLoopDictionary removeObjectForKey:self.identifier];
             };
             
-            // 延迟销毁，
-            OSRunLoop.main.skip(kRunLoopTaskSkip).limit(1).add(self.destroyTask);
+            // 执行销毁的任务
+            OSRunLoop.main.add(self.destroyTask.task);
         }
     }
     else {
         if (self.destroyTask) {
-            OSRunLoop.main.cancel(self.destroyTask);
+            OSRunLoop.main.cancel(self.destroyTask.task);
             self.destroyTask = nil;
         }
     }
 }
 
-- (OSRunLoop *(^)(NSInteger))skip {
-    OSRunLoopChainImplement(NSInteger skipCount, {
-        self.skipCount = skipCount;
+- (OSRunLoop *(^)(NSInteger))max {
+    OSRunLoopChainImplement(NSInteger maxCount, {
+        self.maxCount = maxCount;
     });
 }
 
-- (OSRunLoop *(^)(NSInteger))limit {
-    OSRunLoopChainImplement(NSInteger limitCount, {
-        self.limitCount = limitCount;
-    });
-}
-
-- (OSRunLoop *(^)(dispatch_block_t))add {
-    OSRunLoopChainImplement(dispatch_block_t task, {
+- (OSRunLoopOperation *(^)(dispatch_block_t))add {
+    __weak typeof(&*self) weakSelf = self;
+    return ^id(dispatch_block_t task) {
+        __strong typeof(&*weakSelf) self = weakSelf;
+        OSRunLoopOperation *operation = nil;
+        dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
         if (task) {
-            [self.tasks addObject:task];
-            
-            // 当任务数量tasks大于limitCount时，并且开启缓存时，就将其添加到缓存中
-            while (self.tasks.count > self.limitCount) {
-                if (self.isAllowCache) {
-                    [self.caches addObject:task];
-                }
-                [self.tasks removeObjectAtIndex:0];
-            }
+            operation = OSRunLoopOperation.new;
+            operation.task = task;
+            operation.currentRunLoop = self;
+            [self.taskQueue addObject:operation];
         }
-    });
+        dispatch_semaphore_signal(_lock);
+        return operation;
+    };
 }
 
 - (OSRunLoop *(^)(dispatch_block_t))cancel {
     OSRunLoopChainImplement(dispatch_block_t task, {
-        [self.tasks removeObject:task];
-        [self.caches removeObject:task];
+        OSRunLoopOperation *operationInTasks = [self getOperationByTask:task fromArray:self.taskQueue];
+        [self.taskQueue removeObject:operationInTasks];
+        OSRunLoopOperation *operationInCaches = [self getOperationByTask:task fromArray:self.cacheQueue];
+        [self.cacheQueue removeObject:operationInCaches];
     });
 }
 
-+ (OSRunLoop *(^)(NSString *))queue {
-    return ^OSRunLoop *(NSString *name) {
++ (OSRunLoop *(^)(NSString *))current {
+    return ^OSRunLoop *(NSString *identifier) {
         
-        NSAssert(name != nil, @"runLoop 的 name 不能为nil");
-        OSRunLoop *runloop = [[OSRunLoop sharedInstance].runLoopDictionary  objectForKey:name];
+        NSAssert(identifier != nil, @"runLoop 的 name 不能为nil");
+        OSRunLoop *runloop = [OSRunLoop.runLoopDictionary  objectForKey:identifier];
         if (!runloop) {
-            runloop = [[OSRunLoop alloc] initWithName:name];
-            [runloop addObserverForRunLoop:CFRunLoopGetCurrent()];
-            [[OSRunLoop sharedInstance].runLoopDictionary setObject:runloop forKey:name];
+            runloop = [[OSRunLoop alloc] initWithIdentifer:identifier];
+            CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+            if ([identifier isEqualToString:kRunLoopMainIdentifier]) {
+                runLoop = CFRunLoopGetMain();
+            }
+            [runloop addObserverForRunLoop:runLoop];
+            [OSRunLoop.runLoopDictionary setObject:runloop forKey:identifier];
         }
         return runloop;
     };
 }
 
-- (OSRunLoop *)cache {
-    _allowCache = YES;
-    return self;
+/// 根据一个dispatch_block_t 查找它所在的OSRunLoopOperation对象
+- (OSRunLoopOperation *)getOperationByTask:(dispatch_block_t)task fromArray:(NSArray *)array {
+    if (!task || array.count) {
+        return nil;
+    }
+    NSUInteger foundTaskIdx = [self.taskQueue indexOfObjectPassingTest:^BOOL(OSRunLoopOperation * _Nonnull operation, NSUInteger idx, BOOL * _Nonnull stop) {
+        BOOL res = [operation.task isEqual:task];
+        if (res) {
+            *stop = YES;
+        }
+        return res;
+    }];
+    OSRunLoopOperation *operation = nil;
+    if (foundTaskIdx != NSNotFound) {
+        operation = [self.taskQueue objectAtIndex:foundTaskIdx];
+    }
+    return operation;
 }
+
 
 #pragma mark *** Lazy ***
-- (NSMutableArray *)tasks {
-    if (!_tasks) {
-        _tasks = @[].mutableCopy;
+- (NSMutableArray *)taskQueue {
+    if (!_taskQueue) {
+        _taskQueue = @[].mutableCopy;
     }
-    return _tasks;
+    return _taskQueue;
 }
 
-- (NSMutableArray *)caches {
-    if (!_caches) {
-        _caches = @[].mutableCopy;
+- (NSMutableArray *)cacheQueue {
+    if (!_cacheQueue) {
+        _cacheQueue = @[].mutableCopy;
     }
-    return _caches;
+    return _cacheQueue;
 }
 
-- (NSMutableDictionary *)runLoopDictionary {
++ (NSMutableDictionary *)runLoopDictionary {
+    static NSMutableDictionary *_runLoopDictionary;
     if (!_runLoopDictionary) {
         _runLoopDictionary = @{}.mutableCopy;
     }
@@ -215,5 +230,23 @@ static NSInteger const kRunLoopTaskSkip = 100;
 }
 
 
-
 @end
+
+@implementation OSRunLoopOperation
+
+- (OSRunLoopOperation *(^)(BOOL))cache {
+    return ^ OSRunLoopOperation *(BOOL allowCache) {
+        self.allowCache = allowCache;
+        // 当允许缓存时，将超出maxCount的task放到缓存中，并移除最早添加的task
+        while (self.currentRunLoop.taskQueue.count > self.currentRunLoop.maxCount) {
+            // 若允许缓存，则将超出的任务放到缓存中
+            if (self.isAllowCache) {
+                [self.currentRunLoop.cacheQueue addObject:self];
+            }
+            [self.currentRunLoop.taskQueue removeObjectAtIndex:0];
+        }
+        return self;
+    };
+}
+@end
+
