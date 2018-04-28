@@ -65,6 +65,7 @@
 
 
 - (void)setupUI {
+    self.backgroundView = nil;
     self.cellBackgroundView.opaque = YES;
     self.picContentView.opaque = YES;
     [self setClipsToBounds:YES];
@@ -138,6 +139,7 @@
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         dispatch_block_t completion = ^{
+            self.isDrawed = NO;
             if (flag == self.isDrawColorFlag) {
                 self.cellBackgroundView.frame = rect;
                 self.cellBackgroundView.image = nil;
